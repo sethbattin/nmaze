@@ -1,0 +1,22 @@
+div.cell {
+	width: 20px;
+	height: 20px;
+}
+table {
+	border-collapse: collapse;
+}
+td {
+	border: 1px solid black;
+}
+td.o_left{
+	border-left: none;
+}
+td.o_right{
+	border-right: none;
+}
+td.o_top{
+	border-top:none;
+}
+td.o_bott{
+	border-bottom:none;
+}
