@@ -1,8 +1,8 @@
 <html>
 	<head>
-		<!--<link type="text/css" rel="stylesheet" href="nmaze.css"></link>
-		<script type="text/javascript" src="nmaze.js">
-		</script>-->
+		<!--<link type="text/css" rel="stylesheet" href="nmaze.css"></link>-->
+		<script type="text/javascript" src="js/seedrandom.js"></script>
+		<script type="text/javascript" src="js/nmaze.js"></script>
 		<style>
 			div.cell {
 				width: 20px;
