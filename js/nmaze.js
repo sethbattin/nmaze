@@ -42,6 +42,30 @@ NMaze = function(options){
 	
 	this.maze = _recurse(this, 0);
 	
+	var primStack = {};
+	
+	//open start and end.
+	(function (self){
+		var _b;
+		var _e;
+		for (var i =0; i < self.dims.length; i++){
+			if ((typeof(_b) == "object") && (_b instanceof Array)){
+				_b = _b[0];
+				_e = _e[self.dims[i] - 1];
+			} else {
+				_b = self.maze[0];
+				_e = self.maze[self.dims[i] - 1];
+			}
+		}
+		_b.paths[0] = true;
+		_e.paths[1] = true;
+		
+		
+		
+		
+	})(this);
+	
+	
 	
 	
 	
