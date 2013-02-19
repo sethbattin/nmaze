@@ -1,0 +1,6 @@
+
+The architecture plan
+
+run node.js server, so that code that governs a maze can be used both client side and server side
+strictly separate the core code for a maze from the code which presents the UI
+one way interface required: UI must be able to access maze dataexi

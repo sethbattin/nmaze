@@ -17,6 +17,11 @@ NMaze = function(options){
 	}
 	this.dims = options.dims;
 	
+    // build empty data structure
+    // nested arrays of depth == dims/length
+    // each object at bottom of structure properties: connectedness and paths
+    // connectedness indicates the cell is connected to the reachable areas of the maze
+    // paths indicate each dimension's possible open paths
 	var _recurse = function (self, start)
 	{
 		var item = [];
@@ -24,14 +29,14 @@ NMaze = function(options){
 		
 			if ((start +1) == self.dims.length){
 				
-				var paths = [];
+				var _paths = [];
 				for (var j = 0; j < self.dims.length; j++){
-					paths.push(false, false);
+					_paths[j] = [false, false];
 				}
-				item[i] = paths;
+				item[i] = {connected: false, paths : _paths};
 				
 			} else {
-			
+                
 				item[i] = _recurse(self, start + 1);
 				
 			}
@@ -42,6 +47,8 @@ NMaze = function(options){
 	
 	this.maze = _recurse(this, 0);
 	
+    for
+    
 	
 	
 	
