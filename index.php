@@ -1,44 +1,18 @@
 <html>
 	<head>
-		<!--<link type="text/css" rel="stylesheet" href="nmaze.css"></link>-->
+		<link type="text/css" rel="stylesheet" href="nmaze.css"></link>
 		<script type="text/javascript" src="js/seedrandom.js"></script>
 		<script type="text/javascript" src="js/nmaze.js"></script>
-		<style>
-			div.cell {
-				width: 20px;
-				height: 20px;
-			}
-			table {
-				border-collapse: collapse;
-			}
-			td {
-				border: 1px solid black;
-			}
-			td.o_left{
-				border-left: none;
-			}
-			td.o_right{
-				border-right: none;
-			}
-			td.o_top{
-				border-top:none;
-			}
-			td.o_bott{
-				border-bottom:none;
-			}
-			div.man{
-				background-image: url("man.png");
-				background-size: 100%;
-				background-repeat: no-repeat;
-			}
-		</style>
+
 		<script type="text/javascript">
 		
 			// this object's purpose is to connect the core maze logic to the
 			// table display format.   It implements an interface that all
 			// display formats require in order to be used by the core.
-			
-			var table_display = new (function (){
+			var nMaze = new NMaze();
+			var table_display = new (function (nMaze){
+				this.nMaze = nMaze;
+				// TODO: validate maze object
 			
 				this.getDimensionCount = function (){
 					return 2;
@@ -47,7 +21,7 @@
 					return [5,5];
 				};
 				this.getDirections = function(){
-					return [["left", "right"], ["up", "down"]]
+					return [["up", "down"], ["left", "right"]];
 				};
 				this.getDirVector = function (name){
 					var _return = new Array();
@@ -76,7 +50,7 @@
 					){
 						return false;
 					}
-					return true;
+					return this.nMaze.hasPathXY(x1, y1, x2, y2);
 				};
 				this.getTable = function(){
 					return document.getElementById("table_display_maze");
@@ -138,18 +112,32 @@
 					cell.setAttribute('class', currentClass.join(" "));
 					
 				};
-				this.openWall = function(){
-					var args = Array.prototype.slice.call(arguments);
-					if (args.length != 2 * this.getDimensionCount()){
-						return false;
+				
+				this.init = function(){
+					//expects 2d maze
+					
+					var dirs = this.getDirections();
+					
+					for (var i = 0; i < this.nMaze.dims[0]; i++){
+						for (var j = 0; j < this.nMaze.dims[1]; j++){
+							var cell = this.nMaze.getCell(i, j);
+							for (var k = 0; k < this.nMaze.dims.length; k++){
+								for (var l = 0; l < 2; l++){
+									if (cell.paths[k][l]){
+										var _class = "o_" + dirs[k][l];
+										this._classifyCell(j, i, _class);
+									}
+								}
+							}
+						}
 					}
-					var x1 = args[0];
-					var y1 = args[1];
-					var x2 = args[2];
-					var y2 = args[3];
-					if (!this.validateMove(x1,y1,x2,y2)){
-						return false;
+					/*
+					for (var i in cell.paths){
+						for (var j in cell.paths[i]){
+							if (cell.paths[
+						}
 					}
+					
 					
 					if ((x2 - x1) == -1){
 						this._classifyCell(x1, y1, "o_left");
@@ -168,16 +156,17 @@
 					}
 					
 					return true;
+					*/
 					
 				};
-			})();
+			})(nMaze);
 			
 			var init = function (){
-				//do load-time stuff
+				table_display.init();
 			}
 			
 			document.onreadystatechange = function(){
-				if (document.readyState == "completed"){
+				if (document.readyState == "complete"){
 					init();
 				}
 			};
@@ -185,7 +174,7 @@
 			var man = {x: 0, y:0};
 			
 			var up_move = function(){
-				result = table_display.openWall(man.x, man.y, man.x, man.y - 1);
+				result = table_display.validateMove(man.x, man.y, man.x, man.y - 1);
 				if (result){
 					table_display.
 						getCell(man.x, man.y).
@@ -199,7 +188,7 @@
 				}
 			}
 			var down_move = function(){
-				result = table_display.openWall(man.x, man.y, man.x, man.y + 1);
+				result = table_display.validateMove(man.x, man.y, man.x, man.y + 1);
 				if (result){
 					table_display.
 						getCell(man.x, man.y).
@@ -213,7 +202,7 @@
 				}
 			}
 			function left_move(){
-				result = table_display.openWall(man.x, man.y, man.x - 1, man.y);
+				result = table_display.validateMove(man.x, man.y, man.x - 1, man.y);
 				if (result){
 					table_display.
 						getCell(man.x, man.y).
@@ -227,7 +216,7 @@
 				}
 			}
 			function right_move(){
-				result = table_display.openWall(man.x, man.y, man.x + 1, man.y);
+				result = table_display.validateMove(man.x, man.y, man.x + 1, man.y);
 				if (result){
 					table_display.
 						getCell(man.x, man.y).
@@ -238,6 +227,26 @@
 						getCell(man.x, man.y).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell man');					
+				}
+			}
+			document.onkeydown = function(event){
+				var chCode = (('charCode' in event) && (event.charCode != 0)) ? event.charCode : event.keyCode;
+				console.log(chCode);
+				switch (chCode){
+					case 38:
+						up_move();
+						break;
+					case 40:
+						down_move();
+						break;
+					case 37:
+						left_move();
+						break;
+					case 39:
+						right_move();
+						break;
+					default:
+						break;
 				}
 			}
 			

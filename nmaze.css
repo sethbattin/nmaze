@@ -14,9 +14,14 @@ td.o_left{
 td.o_right{
 	border-right: none;
 }
-td.o_top{
+td.o_up{
 	border-top:none;
 }
-td.o_bott{
+td.o_down{
 	border-bottom:none;
+}
+div.man{
+	background-image: url("man.png");
+	background-size: 100%;
+	background-repeat: no-repeat;
 }

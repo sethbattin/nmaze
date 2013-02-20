@@ -103,14 +103,19 @@ NMaze = function(options){
 		if (args.length != this.dims.length){
 			return undefined;
 		}
+		for (var i in args){
+			if (args[i] >= this.dims[i] || args[i] < 0){
+				return undefined;
+			}
+		}
 		
 		var _cell;
 		
-		for (var i =0; i < this.dims.length; i++){
-			if (i > 0){
-				_cell = _cell[args[i]];
-			} else {
+		for (var i = 0; i < this.dims.length; i++){
+			if (i == 0){
 				_cell = this.maze[args[i]];
+			} else {
+				_cell = _cell[args[i]];
 			}
 		}		
 		return _cell;
@@ -133,7 +138,40 @@ NMaze = function(options){
 			}
 		}
 	};
-	
+	this.hasPathXY = function (){
+		var args = Array.prototype.slice.call(arguments);
+		if (args.length != (2 * this.dims.length)){
+			return undefined;
+		}
+		var cell1Args = [];
+		var cell2Args = [];
+		for (var i = 0; i < args.length; i++){
+			if (i < this.dims.length){
+				cell1Args.unshift(args[i]);
+			} else {
+				cell2Args.unshift(args[i]);
+			}
+		}
+		
+		var cell1 = this.getCell.apply(this, cell1Args);
+		var cell2 = this.getCell.apply(this, cell2Args);
+		return this.hasPath(cell1, cell2);
+	};
+	this.hasPath = function (cell1, cell2){
+		if (!cell1.isNeighbor(cell2)){
+			return false;
+		}
+		var result;
+		for (var p in cell1.position){
+			if (cell1.position[p] > cell2.position[p]){
+				result = (cell1.paths[p][0] && cell2.paths[p][1]);
+			}
+			if (cell1.position[p] < cell2.position[p]){
+				result = (cell1.paths[p][1] && cell2.paths[p][0]);
+			}
+		}
+		return result;
+	};	
 	
 	var primStack = {};
 	var randomStart = [];
@@ -182,11 +220,5 @@ NMaze = function(options){
 		_e.paths[0][1] = true;
 		
 	})(this);
-	
-	
-	
-
-	
-	
 	
 }
