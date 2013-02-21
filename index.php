@@ -9,7 +9,7 @@
 			// this object's purpose is to connect the core maze logic to the
 			// table display format.   It implements an interface that all
 			// display formats require in order to be used by the core.
-			var nMaze = new NMaze({dims: [10,10, 2], seed: 40});
+			var nMaze = new NMaze({dims: [5, 5, 2, 3, 3, 2], seed: 40});
 			var table_display = new (function (nMaze){
                 
 				this.nMaze = nMaze;
@@ -21,7 +21,10 @@
 					return [
                         ["left", "right"],
                         ["up", "down"],
-                        ['in', 'out']
+                        ['in', 'out'],
+                        ['green', 'red'],
+                        ['jeff', 'poop'],
+                        ['end','begin']
                     ];
 				};
 				this.getDirVector = function (name){
@@ -227,37 +230,33 @@
                         }
                     };
                     
-                    var structure = _buildTable(dims, "<div class='cell'></div>", 0);
+                    var structure = _buildTable.call(this, this.getDimensions(), "<div class='cell'></div>",0);
                     document.getElementById("maze_container").innerHTML = structure;
-                    
                     
                     _buildArgs.call(this, dims, 0, [], _applyClasses, []);
                     
-					/*
-					for (var i = 0; i < this.nMaze.dims[0]; i++){
-						for (var j = 0; j < this.nMaze.dims[1]; j++){
-							var cell = this.nMaze.getCell(i, j);
-							for (var k = 0; k < this.nMaze.dims.length; k++){
-								for (var l = 0; l < 2; l++){
-									if (cell.paths[k][l]){
-										var _class = "o_" + dirs[k][l];
-										this._classifyCell(j, i, _class);
-									}
-								}
-							}
-						}
-					}
-					*/
+                    var controls = "";
+                    var dirs = this.getDirections();
+                    for (var dir in dirs){
+                        for (var d in dirs[dir]){
+                            controls += "<input type='button' name='" +
+                                dirs[dir][d] + "' value='" + dirs[dir][d] +
+                                "' onclick='move(this.value)' />";
+                        }
+                    }
+                    
+                    document.getElementById("controls_container").innerHTML = controls;
+                    
 				};
 			})(nMaze);
 			
 			var init = function (){
 				table_display.init();
                 
-            table_display
-                .getCell(man.x, man.y, man.z)
-                .getElementsByTagName('div')[0]
-                .setAttribute('class', 'cell man');
+                table_display
+                    .getCell.apply(table_display, man.position)
+                    .getElementsByTagName('div')[0]
+                    .setAttribute('class', 'cell man');
 			}
 			
 			document.onreadystatechange = function(){
@@ -267,90 +266,143 @@
 			};
 			
 			var man = {x: 0, y:0, z:0};
+            
+            var man = new (
+                function(tDisplay)
+                {
+                    this.position = [];
+                    
+                    for (var i in tDisplay.getDimensions()){
+                        this.position.push(0);
+                    }
+                    this.move = function(direction){
+                        var vector = tDisplay.getDirVector(direction);
+                        var valid = 0;
+                        var newPos = [];
+                        for (var v in vector){
+                            valid += vector[v];
+                            newPos[v] = this.position[v] + vector[v];
+                        }
+                        if (!Math.abs(valid) == 1){
+                            return;
+                        }
+                        var result = tDisplay.validateMove.apply(tDisplay, this.position.concat(newPos));
+                        if (result){
+                            tDisplay.
+                                getCell.apply(tDisplay, this.position)
+                                .getElementsByTagName('div')[0]
+                                .setAttribute('class', 'cell');
+                            man.position = newPos;
+                            tDisplay.
+                                getCell.apply(tDisplay, this.position)
+                                .getElementsByTagName('div')[0]
+                                .setAttribute('class', 'cell man');
+                            
+                        }
+                                
+                        var newCell = tDisplay.nMaze.getCell.apply(tDisplay.nMaze, this.position);
+                        if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
+                            newCell.onEnter();
+                        }
+                    }
+                }
+            )(table_display);
+            
+            var move = function(button){
+                if (typeof(button) == "string"){
+                    man.move(button);
+                }
+            }
 			
 			var up_move = function(){
-				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y - 1, man.z);
-				if (result){
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell');
-					man.y = man.y - 1;					
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell man');					
-				}
-                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
-                if (('onEnter' in newCell) && (typeof(table) == "function")){
-                    newCell.onEnter();
-                }
+//				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y - 1, man.z);
+//				if (result){
+//					table_display.
+//						getCell(man.x, man.y, man.z).
+//						getElementsByTagName('div')[0]
+//						.setAttribute('class', 'cell');
+//					man.y = man.y - 1;					
+//					table_display.
+//						getCell(man.x, man.y, man.z).
+//						getElementsByTagName('div')[0]
+//						.setAttribute('class', 'cell man');					
+//				}
+//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
+//                if (('onEnter' in newCell) && (typeof(table) == "function")){
+//                    newCell.onEnter();
+//                }
 			}
 			var down_move = function(){
-				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y + 1, man.z);
-				if (result){
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell');
-					man.y = man.y + 1;					
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell man');					
-				}
-                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
-                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
-                    newCell.onEnter();
-                }
+//				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y + 1, man.z);
+//				if (result){
+//					table_display.
+//						getCell(man.x, man.y, man.z).
+//						getElementsByTagName('div')[0]
+//						.setAttribute('class', 'cell');
+//					man.y = man.y + 1;					
+//					table_display.
+//						getCell(man.x, man.y, man.z).
+//						getElementsByTagName('div')[0]
+//						.setAttribute('class', 'cell man');					
+//				}
+//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
+//                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
+//                    newCell.onEnter();
+//                }
 			}
 			function left_move(){
-				result = table_display.validateMove(man.x, man.y, man.z, man.x - 1, man.y, man.z);
-				if (result){
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell ');
-					man.x = man.x - 1;					
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell man');					
-				}
+				//result = table_display.validateMove(man.x, man.y, man.z, man.x - 1, man.y, man.z);
+				//if (result){
+				//	table_display.
+				//		getCell(man.x, man.y, man.z).
+				//		getElementsByTagName('div')[0]
+				//		.setAttribute('class', 'cell ');
+				//	man.x = man.x - 1;					
+				//	table_display.
+				//		getCell(man.x, man.y, man.z).
+				//		getElementsByTagName('div')[0]
+				//		.setAttribute('class', 'cell man');					
+				//}
+//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
+//                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
+//                    newCell.onEnter();
+//                }
 			}
 			function right_move(){
-				result = table_display.validateMove(man.x, man.y, man.z, man.x + 1, man.y, man.z);
-				if (result){
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell ');
-					man.x = man.x + 1;					
-					table_display.
-						getCell(man.x, man.y, man.z).
-						getElementsByTagName('div')[0]
-						.setAttribute('class', 'cell man');					
-				}
-                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
-                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
-                    newCell.onEnter();
-                }
+//				result = table_display.validateMove(man.x, man.y, man.z, man.x + 1, man.y, man.z);
+//				if (result){
+//					table_display.
+//						getCell(man.x, man.y, man.z).
+//						getElementsByTagName('div')[0]
+//						.setAttribute('class', 'cell ');
+//					man.x = man.x + 1;					
+//					table_display.
+//						getCell(man.x, man.y, man.z).
+//						getElementsByTagName('div')[0]
+//						.setAttribute('class', 'cell man');					
+//				}
+//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
+//                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
+//                    newCell.onEnter();
+//                }
 			}
 			document.onkeydown = function(event){
 				var chCode = (('charCode' in event) && (event.charCode != 0)) ? event.charCode : event.keyCode;
 				
 				switch (chCode){
 					case 38:
-						up_move();
-						break;
+                    
+					//	up_move(event);
+					//	break;
 					case 40:
-						down_move();
-						break;
+					//	down_move(event);
+					//	break;
 					case 37:
-						left_move();    
-						break;
+					//	left_move();    
+					//	break;
 					case 39:
-						right_move();
+					//	right_move();
+                        move(event);
 						break;
 					default:
 						break;
@@ -362,9 +414,13 @@
 	<body>
         <div id="maze_container">
         </div>
-		<input type="button" name="up" value="up" onclick="up_move()" />
-		<input type="button" name="down" value="down" onclick="down_move()" />
-		<input type="button" name="left" value="left" onclick="left_move()" />
-		<input type="button" name="right" value="right" onclick="right_move()" />
+        <div id="controls_container">
+        <!--
+            <input type="button" name="up" value="up" onclick="move(this.value)" />
+            <input type="button" name="down" value="down" onclick="move(this.value)" />
+            <input type="button" name="left" value="left" onclick="move(this.value)" />
+            <input type="button" name="right" value="right" onclick="move(this.value)" />
+            -->
+        </div>
 	</body>
 </html>
