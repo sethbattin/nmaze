@@ -9,7 +9,7 @@
 			// this object's purpose is to connect the core maze logic to the
 			// table display format.   It implements an interface that all
 			// display formats require in order to be used by the core.
-			var nMaze = new NMaze({dims: [5, 5, 2, 3, 3, 2], seed: 40});
+			var nMaze = new NMaze({dims: [4, 4, 3, 3, 2, 2], seed: 50});
 			var table_display = new (function (nMaze){
                 
 				this.nMaze = nMaze;
@@ -258,7 +258,7 @@
                     .getElementsByTagName('div')[0]
                     .setAttribute('class', 'cell man');
                     
-                var end = table_display.getDimensions();
+                var end = table_display.getDimensions().slice(0);
                 for (var v in end){
                     end[v] = end[v] - 1;
                 }
@@ -321,79 +321,7 @@
                     man.move(button);
                 }
             }
-			
-			var up_move = function(){
-//				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y - 1, man.z);
-//				if (result){
-//					table_display.
-//						getCell(man.x, man.y, man.z).
-//						getElementsByTagName('div')[0]
-//						.setAttribute('class', 'cell');
-//					man.y = man.y - 1;					
-//					table_display.
-//						getCell(man.x, man.y, man.z).
-//						getElementsByTagName('div')[0]
-//						.setAttribute('class', 'cell man');					
-//				}
-//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
-//                if (('onEnter' in newCell) && (typeof(table) == "function")){
-//                    newCell.onEnter();
-//                }
-			}
-			var down_move = function(){
-//				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y + 1, man.z);
-//				if (result){
-//					table_display.
-//						getCell(man.x, man.y, man.z).
-//						getElementsByTagName('div')[0]
-//						.setAttribute('class', 'cell');
-//					man.y = man.y + 1;					
-//					table_display.
-//						getCell(man.x, man.y, man.z).
-//						getElementsByTagName('div')[0]
-//						.setAttribute('class', 'cell man');					
-//				}
-//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
-//                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
-//                    newCell.onEnter();
-//                }
-			}
-			function left_move(){
-				//result = table_display.validateMove(man.x, man.y, man.z, man.x - 1, man.y, man.z);
-				//if (result){
-				//	table_display.
-				//		getCell(man.x, man.y, man.z).
-				//		getElementsByTagName('div')[0]
-				//		.setAttribute('class', 'cell ');
-				//	man.x = man.x - 1;					
-				//	table_display.
-				//		getCell(man.x, man.y, man.z).
-				//		getElementsByTagName('div')[0]
-				//		.setAttribute('class', 'cell man');					
-				//}
-//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
-//                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
-//                    newCell.onEnter();
-//                }
-			}
-			function right_move(){
-//				result = table_display.validateMove(man.x, man.y, man.z, man.x + 1, man.y, man.z);
-//				if (result){
-//					table_display.
-//						getCell(man.x, man.y, man.z).
-//						getElementsByTagName('div')[0]
-//						.setAttribute('class', 'cell ');
-//					man.x = man.x + 1;					
-//					table_display.
-//						getCell(man.x, man.y, man.z).
-//						getElementsByTagName('div')[0]
-//						.setAttribute('class', 'cell man');					
-//				}
-//                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
-//                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
-//                    newCell.onEnter();
-//                }
-			}
+            
 			document.onkeydown = function(event){
 				var chCode = (('charCode' in event) && (event.charCode != 0)) ? event.charCode : event.keyCode;
 				
