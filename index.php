@@ -257,6 +257,14 @@
                     .getCell.apply(table_display, man.position)
                     .getElementsByTagName('div')[0]
                     .setAttribute('class', 'cell man');
+                    
+                var end = table_display.getDimensions();
+                for (var v in end){
+                    end[v] = end[v] - 1;
+                }
+                table_display
+                    .getCell.apply(table_display, end)
+                    .setAttribute('class', 'exit');
 			}
 			
 			document.onreadystatechange = function(){

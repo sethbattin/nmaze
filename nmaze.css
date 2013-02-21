@@ -9,16 +9,21 @@ td {
 	border: 1px solid black;
 }
 td.o_left{
-	border-left: none;
+	border-left: 1px solid white;
 }
 td.o_right{
-	border-right: none;
+	border-right: 1px solid white;
 }
 td.o_up{
-	border-top:none;
+	border-top: 1px solid white;
 }
 td.o_down{
-	border-bottom:none;
+	border-bottom: 1px solid white;
+}
+td.exit{
+    background-image:url('exit.jpg');
+	background-size: 100%;
+	background-repeat: no-repeat;
 }
 div.man{
 	background-image: url("man.png");
