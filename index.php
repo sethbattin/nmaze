@@ -9,27 +9,28 @@
 			// this object's purpose is to connect the core maze logic to the
 			// table display format.   It implements an interface that all
 			// display formats require in order to be used by the core.
-			var nMaze = new NMaze();
+			var nMaze = new NMaze({dims: [10,10, 2], seed: 40});
 			var table_display = new (function (nMaze){
+                
 				this.nMaze = nMaze;
 				// TODO: validate maze object
-			
-				this.getDimensionCount = function (){
-					return 2;
-				};
 				this.getDimensions = function(){
-					return [5,5];
+					return this.nMaze.dims;
 				};
 				this.getDirections = function(){
-					return [["up", "down"], ["left", "right"]];
+					return [
+                        ["left", "right"],
+                        ["up", "down"],
+                        ['in', 'out']
+                    ];
 				};
 				this.getDirVector = function (name){
 					var _return = new Array();
 					var dirs = this.getDirections();
-					for (var i = 0; i < this.getDimensionCount(); i++){
+					for (var i = 0; i < this.getDimensions().length; i++){
 						_return.push(0);
 					}
-					for (var i = 0; i < this.getDimensionCount(); i++){
+					for (var i = 0; i < this.getDimensions().length; i++){
 						if (dirs[i][0] == name) { _return[i] = -1; break;}
 						if (dirs[i][1] == name) { _return[i] = 1; break;}
 					}
@@ -38,27 +39,74 @@
 				this.validateMove = function(x1, y1, x2, y2){
 					var args = Array.prototype.slice.call(arguments);
 					var dims = this.getDimensions();
-					console.log(dims);
-					if ((typeof(x1) == 'undefined') ||
-						(typeof(y1) == 'undefined') ||
-						(typeof(x2) == 'undefined') ||
-						(typeof(y2) == 'undefined') ||
-						(x1 < 0 || y1 < 0 || x2 < 0 || y2 < 0) ||
-						(x1 >= dims[0] || x2 >= dims[0]) || 
-						(y1 >= dims[1] || y2 >= dims[1]) || 
-						((Math.abs(x1 - x2) + Math.abs(y1 -y2)) != 1) 
-					){
-						return false;
-					}
-					return this.nMaze.hasPathXY(x1, y1, x2, y2);
+                    
+                    if (args.length != (dims.length * 2)){
+                        return undefined;
+                    }
+                    
+                    var coords1 = [];
+                    var coords2 = [];
+                    
+                    for (var i = 0; i < dims.length; i++){
+                        coords1.push(args.shift());
+                    }
+                    
+                    for (var i = 0; i < dims.length; i++){
+                        coords2.push(args.shift());
+                    }
+                    for (var i = 0; i < dims.length; i++){
+                        if (coords1[i] >= dims[i] ||
+                            coords2[i] >= dims[i] ||
+                            coords1[i] < 0 ||
+                            coords2[i] < 0){
+                            return false;
+                        }
+                    }
+					return this.nMaze.hasPathXY.apply(this.nMaze, coords1.concat(coords2));
+                    //return this.nMaze.hasPathVY(x1, y1, x2, y2);
 				};
 				this.getTable = function(){
-					return document.getElementById("table_display_maze");
+					var args = Array.prototype.slice.call(arguments);
+                    
+                    var table;
+                    
+                    if ((args.length % 2) == 1){
+                        args.push(0);
+                    }
+                    
+                    tables = document.getElementsByTagName('table');
+                    
+                    while (args.length > 2){
+                        var teir = ((args.length /2) - 1 );
+                        var topTable;
+                        for (var t in tables){
+                            if ((' ' + tables[t].className + ' ')
+                                .indexOf(' t-' + teir + ' ') > -1)
+                            {
+                                topTable = tables[t];
+                                break;
+                            }
+                        }
+                        var row = args.pop();
+                        var td = args.pop();
+                        
+                        var tables = topTable.rows[row].cells[td].
+                            getElementsByTagName('table');
+                        
+                        
+                    }
+                    
+					return tables[0];
 				};
 				this.getCell = function (){
 					var args = Array.prototype.slice.call(arguments);
-					var table = this.getTable();
-					var cell = undefined;
+                    var cell = undefined;
+                    
+					if (args.length != this.getDimensions().length){
+                        return cell;
+                    }
+                    
+					var table = this.getTable.apply(this, args);
 					var getRow = function (i) {
 						var rows = table.getElementsByTagName("tr");
 						var row = undefined;
@@ -67,7 +115,7 @@
 						}
 						return row;
 					};
-					var getRowTd = function (row, i){
+					var getRowTd = function (i,row){
 						var cells = row.getElementsByTagName("td");
 						var cell = undefined;
 						if (cells.length > i ){
@@ -75,15 +123,16 @@
 						}
 						return cell;
 					};
-					if (args.length != this.getDimensionCount()){
-					} else {
-						cell = getRowTd(getRow(args[1]),args[0]);
-					}
+                    
+					cell = getRowTd(args[0], getRow(args[1]));
+					
 					return cell;
 				};
-				this._classifyCell = function (x1, y1, _class){
+				this._classifyCell = function (){
+					var args = Array.prototype.slice.call(arguments);
+                    var _class = args.pop();
 					//it sure would be nice to be using jQuery right now.
-					var cell = this.getCell(x1, y1);
+					var cell = this.getCell.apply(this, args);
 					var currentClass = cell.getAttribute('class');
 					if ((typeof(currentClass) == "undefined") ||
 						((typeof(currentClass) == "object") && (currentClass == null))
@@ -94,8 +143,10 @@
 					}
 					cell.setAttribute('class', currentClass);
 				};
-				this._declassifyCell = function (x1, y1, _class){
-					var cell = this.getCell(x1, y1);
+				this._declassifyCell = function (){
+					var args = Array.prototype.slice.call(arguments);
+                    var _class = args.pop();
+					var cell = this.getCell.apply(this, args);
 					var currentClass = cell.getAttribute('class');
 					if ((typeof(currentClass) == "undefined") ||
 						((typeof(currentClass) == "object") && (currentClass == null))
@@ -117,7 +168,72 @@
 					//expects 2d maze
 					
 					var dirs = this.getDirections();
-					
+                    var dims = this.getDimensions();
+                    
+                    var _applyClasses = function(values){
+                        var cell = this.nMaze.getCell.apply(this.nMaze, values);
+                        for (var j = 0; j < this.nMaze.dims.length; j++){
+                            for (var k = 0; k < 2; k++){
+                                if (cell.paths[j][k]){
+                                    var _class = "o_" + dirs[j][k];
+                                    this._classifyCell.apply(this, values.concat(_class));
+                                }
+                            }
+                        }
+                    };
+                    
+                    var _buildTable = function(_args, content, iteration){
+                    
+                        var args = _args.slice(0);
+                        if ((typeof(args) != "undefined") && (args.length == 1)){
+                            args.push(1);
+                        }
+                    
+                        var td = "<td>" + content + "</td>";
+                        var tr = "<tr>";
+                        var tdReps = args.shift();
+                        for (var i = 0; i < tdReps; i++){
+                            tr += td + "\n";
+                        }
+                        tr += "</tr>";
+                        
+                        var trReps = args.shift();
+                        
+                        var table = "<table class='t-" + iteration + "'>";
+                        
+                        for (var i = 0; i < trReps; i++){
+                            table += tr + "\n";
+                        }
+                        table += "</table>";
+                        
+                        var result = undefined;
+                        
+                        if (args.length > 0){
+                            result = _buildTable.call(this, args, table, iteration + 1);
+                        } else {
+                            result = table;
+                        }
+                        
+                        return result;
+                    }
+                    
+                    var _buildArgs = function(dims, arg, values, _onBuild, _onBuildArgs){
+                        if (arg < dims.length){
+                            for (var i = 0; i < dims[arg]; i++){
+                                _buildArgs.call(this, dims, arg + 1, values.concat(i), _onBuild, _onBuildArgs);
+                            }
+                        } else {
+                            _onBuild.apply(this, [values].concat(_onBuildArgs));
+                        }
+                    };
+                    
+                    var structure = _buildTable(dims, "<div class='cell'></div>", 0);
+                    document.getElementById("maze_container").innerHTML = structure;
+                    
+                    
+                    _buildArgs.call(this, dims, 0, [], _applyClasses, []);
+                    
+					/*
 					for (var i = 0; i < this.nMaze.dims[0]; i++){
 						for (var j = 0; j < this.nMaze.dims[1]; j++){
 							var cell = this.nMaze.getCell(i, j);
@@ -131,38 +247,17 @@
 							}
 						}
 					}
-					/*
-					for (var i in cell.paths){
-						for (var j in cell.paths[i]){
-							if (cell.paths[
-						}
-					}
-					
-					
-					if ((x2 - x1) == -1){
-						this._classifyCell(x1, y1, "o_left");
-						this._classifyCell(x2, y2, "o_right");
-					}else if ((x2 - x1) == 1){
-						this._classifyCell(x1, y1, "o_right");
-						this._classifyCell(x2, y2, "o_left");
-					}else if ((y2 - y1) == -1){
-						this._classifyCell(x1, y1, "o_top");
-						this._classifyCell(x2, y2, "o_bott");
-					}else if ((y2 - y1) == 1){
-						this._classifyCell(x1, y1, "o_bott");
-						this._classifyCell(x2, y2, "o_top");
-					} else {
-						return false;
-					}
-					
-					return true;
 					*/
-					
 				};
 			})(nMaze);
 			
 			var init = function (){
 				table_display.init();
+                
+            table_display
+                .getCell(man.x, man.y, man.z)
+                .getElementsByTagName('div')[0]
+                .setAttribute('class', 'cell man');
 			}
 			
 			document.onreadystatechange = function(){
@@ -171,67 +266,79 @@
 				}
 			};
 			
-			var man = {x: 0, y:0};
+			var man = {x: 0, y:0, z:0};
 			
 			var up_move = function(){
-				result = table_display.validateMove(man.x, man.y, man.x, man.y - 1);
+				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y - 1, man.z);
 				if (result){
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell');
 					man.y = man.y - 1;					
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell man');					
 				}
+                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
+                if (('onEnter' in newCell) && (typeof(table) == "function")){
+                    newCell.onEnter();
+                }
 			}
 			var down_move = function(){
-				result = table_display.validateMove(man.x, man.y, man.x, man.y + 1);
+				result = table_display.validateMove(man.x, man.y, man.z, man.x, man.y + 1, man.z);
 				if (result){
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell');
 					man.y = man.y + 1;					
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell man');					
 				}
+                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
+                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
+                    newCell.onEnter();
+                }
 			}
 			function left_move(){
-				result = table_display.validateMove(man.x, man.y, man.x - 1, man.y);
+				result = table_display.validateMove(man.x, man.y, man.z, man.x - 1, man.y, man.z);
 				if (result){
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell ');
 					man.x = man.x - 1;					
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell man');					
 				}
 			}
 			function right_move(){
-				result = table_display.validateMove(man.x, man.y, man.x + 1, man.y);
+				result = table_display.validateMove(man.x, man.y, man.z, man.x + 1, man.y, man.z);
 				if (result){
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell ');
 					man.x = man.x + 1;					
 					table_display.
-						getCell(man.x, man.y).
+						getCell(man.x, man.y, man.z).
 						getElementsByTagName('div')[0]
 						.setAttribute('class', 'cell man');					
 				}
+                var newCell = table_display.nMaze.getCell(man.x, man.y, man.z);
+                if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
+                    newCell.onEnter();
+                }
 			}
 			document.onkeydown = function(event){
 				var chCode = (('charCode' in event) && (event.charCode != 0)) ? event.charCode : event.keyCode;
-				console.log(chCode);
+				
 				switch (chCode){
 					case 38:
 						up_move();
@@ -240,7 +347,7 @@
 						down_move();
 						break;
 					case 37:
-						left_move();
+						left_move();    
 						break;
 					case 39:
 						right_move();
@@ -253,46 +360,11 @@
 		</script>
 	<head>
 	<body>
-		<table id="table_display_maze">
-			<tr>
-				<td><div class='cell man'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-			</tr>
-			<tr>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-			</tr>
-			<tr>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-			</tr>
-			<tr>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-			</tr>
-			<tr>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-				<td><div class='cell'></td>
-			</tr>
-		</table>
+        <div id="maze_container">
+        </div>
 		<input type="button" name="up" value="up" onclick="up_move()" />
 		<input type="button" name="down" value="down" onclick="down_move()" />
 		<input type="button" name="left" value="left" onclick="left_move()" />
 		<input type="button" name="right" value="right" onclick="right_move()" />
 	</body>
-<html>
+</html>

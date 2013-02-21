@@ -16,7 +16,7 @@ NMaze = function(options){
 	}
 
 	if (typeof(options.seed) == "undefined"){
-		options.seed = "0";
+		options.seed = 0;
 	}
 	if (typeof(Math.seedrandom) !== "function"){
 		throw "Seedrandom library is unavailable.";
@@ -38,9 +38,10 @@ NMaze = function(options){
 		var item = [];
 		for (var i = 0; i < self.dims[dim]; i++){
 		
-			var _pos =  pos.concat([i]);
+			var _pos =  pos.slice(0);
+            _pos.unshift(i);
 	
-			if ((dim + 1) == self.dims.length){
+			if (dim == 0){
 				
 				var _paths = [];
 				for (var j = 0; j < self.dims.length; j++){
@@ -89,14 +90,14 @@ NMaze = function(options){
 				};
 				
 			} else {                
-				item[i] = _recurse(self, dim + 1, _pos);
+				item[i] = _recurse(self, dim - 1, _pos);
 			}
 			
 		}
 		return item;
 	}
 	
-	this.maze = _recurse(this, 0, []);
+	this.maze = _recurse(this, this.dims.length - 1, []);
 	
 	this.getCell = function(){
 		var args = Array.prototype.slice.call(arguments);
@@ -111,15 +112,15 @@ NMaze = function(options){
 		
 		var _cell;
 		
-		for (var i = 0; i < this.dims.length; i++){
-			if (i == 0){
-				_cell = this.maze[args[i]];
+		for (var i = this.dims.length; i > 0; i--){
+			if (i == this.dims.length){
+				_cell = this.maze[args[i - 1]];
 			} else {
-				_cell = _cell[args[i]];
+				_cell = _cell[args[i - 1]];
 			}
 		}		
 		return _cell;
-	}
+	};
 	
 	this.openPath = function(cell1, cell2){
 		if (!cell1.isNeighbor(cell2)){
@@ -147,9 +148,9 @@ NMaze = function(options){
 		var cell2Args = [];
 		for (var i = 0; i < args.length; i++){
 			if (i < this.dims.length){
-				cell1Args.unshift(args[i]);
+				cell1Args.push(args[i]);
 			} else {
-				cell2Args.unshift(args[i]);
+				cell2Args.push(args[i]);
 			}
 		}
 		
@@ -214,10 +215,22 @@ NMaze = function(options){
 		
 	//open start and end.
 	(function (self){
-		var _b = self.getCell(0,0);
-		var _e = self.getCell(4,4);
+        
+		var _b = self.dims.slice(0);
+		var _e = self.dims.slice(0);
+        
+        for (var i = 0; i < self.dims.length; i++){
+            _b[i] = 0;
+            _e[i] = self.dims[i] - 1;
+        }
+        _b = self.getCell.apply(self, _b);
+        _e = self.getCell.apply(self, _e);
+        
 		_b.paths[0][0] = true;
 		_e.paths[0][1] = true;
+        _e.onEnter = function (){
+            alert("victory");
+        }
 		
 	})(this);
 	
