@@ -15,7 +15,7 @@
                 } else {
                     $keys = array_keys($_GET);
                     $param = preg_replace("/([^0-9\-])/", "",$keys[0]);
-                    $params = split("-",$param);
+                    $params = explode("-",$param);
                     $settings = array();
                     foreach ($params as $p){
                         if ($p != '' && is_numeric($p) && is_integer((int)$p)){
@@ -354,15 +354,19 @@
 				switch (chCode){
 					case 37:
                         move([0,0]);
+                        e.preventDefault();
                         break;
 					case 39:
                         move([0,1]);
+                        e.preventDefault();
                         break;
 					case 38:
                         move([1,0]);
+                        e.preventDefault();
                         break;
 					case 40:
                         move([1,1]);
+                        e.preventDefault();
                         break;
                     case 81:
                         move([2,0]);
