@@ -1,0 +1,27 @@
+div.cell {
+	width: 20px;
+	height: 20px;
+}
+table {
+	border-collapse: collapse;
+}
+td {
+	border: 1px solid black;
+}
+td.o_left{
+	border-left: none;
+}
+td.o_right{
+	border-right: none;
+}
+td.o_up{
+	border-top:none;
+}
+td.o_down{
+	border-bottom:none;
+}
+div.man{
+	background-image: url("man.png");
+	background-size: 100%;
+	background-repeat: no-repeat;
+}

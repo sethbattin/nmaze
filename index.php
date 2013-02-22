@@ -9,7 +9,24 @@
 			// this object's purpose is to connect the core maze logic to the
 			// table display format.   It implements an interface that all
 			// display formats require in order to be used by the core.
-			var nMaze = new NMaze({dims: [4, 4, 3, 3, 2, 2], seed: 50});
+            <?php
+                if (count($_GET) == 0){
+                    $settings = array(5,5,2,2,40);
+                } else {
+                    $keys = array_keys($_GET);
+                    $param = preg_replace("/([^0-9\-])/", "",$keys[0]);
+                    $params = split("-",$param);
+                    $settings = array();
+                    foreach ($params as $p){
+                        if ($p != '' && is_numeric($p) && is_integer((int)$p)){
+                            $settings[] = (int)$p;
+                        }
+                    }
+                }
+                $seed = array_pop($settings);
+                $json = array('seed' => $seed, 'dims' => $settings);
+            ?>
+			var nMaze = new NMaze(<?php echo json_encode($json); ?>);
 			var table_display = new (function (nMaze){
                 
 				this.nMaze = nMaze;
@@ -234,18 +251,35 @@
                     document.getElementById("maze_container").innerHTML = structure;
                     
                     _buildArgs.call(this, dims, 0, [], _applyClasses, []);
-                    
+                    var letters = ["Left", "Right", "Up", "Down", "Q","A","W","S","E","D","R","F","T","G"];
                     var controls = "";
                     var dirs = this.getDirections();
                     for (var dir in dirs){
+                        if (dir >= this.getDimensions().length){
+                            break;
+                        }
+                        controls += "<fieldset id='c" + dir +
+                            "'><legend for='c" + dir + "'>" +
+                            letters[dir * 2] + "/" + letters[dir * 2 + 1] +
+                            "</legend>";
                         for (var d in dirs[dir]){
                             controls += "<input type='button' name='" +
                                 dirs[dir][d] + "' value='" + dirs[dir][d] +
                                 "' onclick='move(this.value)' />";
                         }
+                        controls += "</fieldset>";
                     }
                     
                     document.getElementById("controls_container").innerHTML = controls;
+                    
+                    
+                    
+                    var end = this.getDimensions().slice(0);
+                    for (var v in end){
+                        end[v] = end[v] - 1;
+                    }
+                    this.getCell.apply(this, end)
+                        .setAttribute('class', 'exit');
                     
 				};
 			})(nMaze);
@@ -257,14 +291,6 @@
                     .getCell.apply(table_display, man.position)
                     .getElementsByTagName('div')[0]
                     .setAttribute('class', 'cell man');
-                    
-                var end = table_display.getDimensions().slice(0);
-                for (var v in end){
-                    end[v] = end[v] - 1;
-                }
-                table_display
-                    .getCell.apply(table_display, end)
-                    .setAttribute('class', 'exit');
 			}
 			
 			document.onreadystatechange = function(){
@@ -272,8 +298,6 @@
 					init();
 				}
 			};
-			
-			var man = {x: 0, y:0, z:0};
             
             var man = new (
                 function(tDisplay)
@@ -319,6 +343,8 @@
             var move = function(button){
                 if (typeof(button) == "string"){
                     man.move(button);
+                }else if ((typeof(button) == "object") && (button instanceof Array)){
+                    man.move(table_display.getDirections()[button[0]][button[1]]);
                 }
             }
             
@@ -326,20 +352,42 @@
 				var chCode = (('charCode' in event) && (event.charCode != 0)) ? event.charCode : event.keyCode;
 				
 				switch (chCode){
-					case 38:
-                    
-					//	up_move(event);
-					//	break;
-					case 40:
-					//	down_move(event);
-					//	break;
 					case 37:
-					//	left_move();    
-					//	break;
+                        move([0,0]);
+                        break;
 					case 39:
-					//	right_move();
-                        move(event);
-						break;
+                        move([0,1]);
+                        break;
+					case 38:
+                        move([1,0]);
+                        break;
+					case 40:
+                        move([1,1]);
+                        break;
+                    case 81:
+                        move([2,0]);
+                        break;
+                    case 65:
+                        move([2,1]);
+                        break;
+                    case 87:
+                        move([3,0]);
+                        break;
+                    case 83:
+                        move([3,1]);
+                        break;
+                    case 69:
+                        move([4,0]);
+                        break;
+                    case 68:
+                        move([4,1]);
+                        break;
+                    case 82:
+                        move([5,0]);
+                        break;
+                    case 70:
+                        move([5,1]);
+                        break;
 					default:
 						break;
 				}
@@ -348,6 +396,7 @@
 		</script>
 	<head>
 	<body>
+    
         <div id="maze_container">
         </div>
         <div id="controls_container">
