@@ -40,8 +40,9 @@
                         ["up", "down"],
                         ['in', 'out'],
                         ['green', 'red'],
-                        ['jeff', 'poop'],
-                        ['end','begin']
+                        ['poop', 'jeff'],
+                        ['begin','end'],
+                        ['evil', 'good']
                     ];
 				};
 				this.getDirVector = function (name){
@@ -354,19 +355,19 @@
 				switch (chCode){
 					case 37:
                         move([0,0]);
-                        e.preventDefault();
+                        event.preventDefault();
                         break;
 					case 39:
                         move([0,1]);
-                        e.preventDefault();
+                        event.preventDefault();
                         break;
 					case 38:
                         move([1,0]);
-                        e.preventDefault();
+                        event.preventDefault();
                         break;
 					case 40:
                         move([1,1]);
-                        e.preventDefault();
+                        event.preventDefault();
                         break;
                     case 81:
                         move([2,0]);
