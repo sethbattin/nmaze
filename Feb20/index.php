@@ -1,11 +1,11 @@
 <html>
 	<head>
 		<link type="text/css" rel="stylesheet" href="nmaze.css"></link>
-		<script type="text/javascript" src="js/seedrandom.js"></script>
+		<script type="text/javascript" src="/nmaze/js/seedrandom.js"></script>
 		<script type="text/javascript" src="js/nmaze.js"></script>
 
 		<script type="text/javascript">
-		
+
 			// this object's purpose is to connect the core maze logic to the
 			// table display format.   It implements an interface that all
 			// display formats require in order to be used by the core.
@@ -13,7 +13,7 @@
 			var table_display = new (function (nMaze){
 				this.nMaze = nMaze;
 				// TODO: validate maze object
-			
+
 				this.getDimensionCount = function (){
 					return 2;
 				};
@@ -110,14 +110,14 @@
 						}
 					}
 					cell.setAttribute('class', currentClass.join(" "));
-					
+
 				};
-				
+
 				this.init = function(){
 					//expects 2d maze
-					
+
 					var dirs = this.getDirections();
-					
+
 					for (var i = 0; i < this.nMaze.dims[0]; i++){
 						for (var j = 0; j < this.nMaze.dims[1]; j++){
 							var cell = this.nMaze.getCell(i, j);
@@ -157,22 +157,22 @@
 					
 					return true;
 					*/
-					
+
 				};
 			})(nMaze);
-			
+
 			var init = function (){
 				table_display.init();
 			}
-			
+
 			document.onreadystatechange = function(){
 				if (document.readyState == "complete"){
 					init();
 				}
 			};
-			
+
 			var man = {x: 0, y:0};
-			
+
 			var up_move = function(){
 				result = table_display.validateMove(man.x, man.y, man.x, man.y - 1);
 				if (result){
@@ -249,7 +249,7 @@
 						break;
 				}
 			}
-			
+
 		</script>
 	<head>
 	<body>
