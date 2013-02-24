@@ -210,10 +210,19 @@ NMaze = function(options){
 				delete primStack[rooms[r]];
 			}
 		}
-	}
+	};
+    this.getEndCell = function(){
+        var c = [];
+        for (var i = 0; i < this.dims.length; i++){
+            c[i] = this.dims[i] - 1;
+        }
+        var endCell = this.getCell.apply(this, c);
+        return endCell;
+    };
 	
 		
 	//open start and end.
+    // why is this in a self executing anonymous function?  Who knows...
 	(function (self){
         
 		var _b = self.dims.slice(0);

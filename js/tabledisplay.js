@@ -1,6 +1,9 @@
 
+// this object's purpose is to connect the core maze logic to the
+// table display format.   It implements an interface that all
+// display formats require in order to be used by the core.
 
-var TableDisplay = function (nMaze){
+var TableDisplay = function (nMaze, mazeContId, controlsContId){
     
     this.nMaze = nMaze;
     // TODO: validate maze object
@@ -265,7 +268,7 @@ var TableDisplay = function (nMaze){
         };
         
         var structure = _buildTable.call(this, this.getDimensions(), "<div class='cell'></div>",0);
-        document.getElementById("maze_container").innerHTML = structure;
+        document.getElementById(mazeContId).innerHTML = structure;
         
         _buildArgs.call(this, dims, 0, [], _applyClasses, []);
         var letters = ["Left", "Right", "Up", "Down", "Q","A","W","S","E","D","R","F","T","G"];
@@ -287,7 +290,7 @@ var TableDisplay = function (nMaze){
             controls += "</fieldset>";
         }
         
-        document.getElementById("controls_container").innerHTML = controls;
+        document.getElementById(controlsContId).innerHTML = controls;
         
         
         

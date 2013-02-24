@@ -6,40 +6,48 @@ table {
 	border-collapse: collapse;
 }
 td {
+    border: none;
+    padding: 0;
+}
+
+table.t-0 td {
 	border: 1px solid black;
 }
-td.o_left{
+table.t-0 td:hover{
+    background-color: orange;
+}
+table.t-0 td.o_left{
 	border-left: 1px solid white;
 }
-td.o_right{
+table.t-0 td.o_right{
 	border-right: 1px solid white;
 }
-td.o_up{
+table.t-0 td.o_up{
 	border-top: 1px solid white;
 }
-td.o_down{
+table.t-0 td.o_down{
 	border-bottom: 1px solid white;
 }
 
-td.o_in:before, td.o_out:before{
+table.t-0 td.o_in:before, td.o_out:before{
     content:"";
     float:right;
     width:20px;
     height:20px;
-    background-image:url("stairs.png");
+    background-image:url("img/stairs.png");
     background-size: 20px, 50%;
     background-repeat: no-repeat;
 }
-td.o_in:before{
+table.t-0 td.o_in:before{
     background-position: 0 -10px;}
 
-td.o_out:before{
+table.t-0 td.o_out:before{
     background-position: 0 10px;    
 }
-td.o_out.o_in:before{
+table.t-0 td.o_out.o_in:before{
     background-position: 0 0;
 }
-td.o_red{
+table.t-0 td.o_red{
     background: -webkit-gradient(linear, center top, center bottom, from(#ffffff), to(#ffffff), to(#ffffff), to(#ffffff), to(#ee0000));
     background: -webkit-linear-gradient(#ffffff, #ffffff, #ffffff, #ffffff, #ee0000);
     background: -moz-linear-gradient(#ffffff, #ffffff, #ffffff, #ffffff, #ee0000);
@@ -47,7 +55,7 @@ td.o_red{
     background: -ms-linear-gradient(#ffffff, #ffffff, #ffffff, #ffffff, #ee0000);
     background: linear-gradient(#ffffff, #ffffff, #ffffff, #ffffff, #ee0000);
 }
-td.o_green{
+table.t-0 td.o_green{
     background: -webkit-gradient(linear, center top, center bottom, from(#00ee00), to(#ffffff), to(#ffffff), to(#ffffff), to(#ffffff));
     background: -webkit-linear-gradient(#00ee00, #ffffff, #ffffff, #ffffff, #ffffff);
     background: -moz-linear-gradient(#00ee00, #ffffff, #ffffff, #ffffff, #ffffff);
@@ -56,7 +64,7 @@ td.o_green{
     background: linear-gradient(#00ee00, #ffffff, #ffffff, #ffffff, #ffffff);
 }
 
-td.o_red.o_green{
+table.t-0 td.o_red.o_green{
     background: -webkit-gradient(linear, center top, center bottom, from(#00ee00), to(#ffffff), to(#ffffff), to(#ffffff), to(#ee0000));
     background: -webkit-linear-gradient(#00ee00, #ffffff, #ffffff, #ffffff, #ee0000);
     background: -moz-linear-gradient(#00ee00, #ffffff, #ffffff, #ffffff, #ee0000);
@@ -65,12 +73,12 @@ td.o_red.o_green{
     background: linear-gradient(#00ee00, #ffffff, #ffffff, #ffffff, #ee0000);
 }
 td.exit{
-    background-image:url('exit.jpg');
+    background-image:url('img/exit.jpg');
 	background-size: 100%;
 	background-repeat: no-repeat;
 }
 div.man{
-	background-image: url("man.png");
+	background-image: url("img/man.png");
 	background-size: 100%;
 	background-repeat: no-repeat;
 }
@@ -80,4 +88,37 @@ fieldset{
 }
 input{
     width:70px;
+}
+input.maze_dim{
+    width:35px;
+    margin: 0 20px 0 5px;
+}
+input.maze_seed{
+    margin:0 20px 0 5px;
+}
+
+ul.main-menu {
+    padding: 0;
+}
+
+ul.main-menu li {
+    display:inline;
+    padding: 0 10px;
+}
+div#maze_info{
+    float:left;
+    margin:0 50px;
+}
+div#maze_container{
+    float:left;
+}
+div#messages{
+    float:left;
+    margin: 0 20px;
+    border: 2px inset ;
+    width:450px;
+    height:225px;
+}
+div#controls_container{
+    clear:both;
 }

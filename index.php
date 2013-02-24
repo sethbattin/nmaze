@@ -1,51 +1,15 @@
+<?php
+    include_once($_SERVER['DOCUMENT_ROOT'] . '/nmaze/includes/main.php');
+?>
 <html>
 	<head>
-		<link type="text/css" rel="stylesheet" href="nmaze.css"></link>
-		<script type="text/javascript" src="js/seedrandom.js"></script>
-		<script type="text/javascript" src="js/nmaze.js"></script>
-        <script type="text/javascript" src="js/tabledisplay.js"></script>
+        <?php nm_head_links(); ?>
 		<script type="text/javascript">
-		
-			// this object's purpose is to connect the core maze logic to the
-			// table display format.   It implements an interface that all
-			// display formats require in order to be used by the core.
-            <?php
-                if (count($_GET) == 0){
-                    $settings = array(5,5,2,2,40);
-                } else {
-                    $keys = array_keys($_GET);
-                    $param = preg_replace("/([^0-9\-])/", "",$keys[0]);
-                    $params = explode("-",$param);
-                    $settings = array();
-                    foreach ($params as $p){
-                        if ($p != '' && is_numeric($p) && is_integer((int)$p)){
-                            $settings[] = (int)$p;
-                        }
-                    }
-                }
-                if (count($settings) == 0){
-                    $seed = 20;
-                } else {
-                    $seed = array_pop($settings);
-                }
-                if (count($settings) == 0){
-                    $settings[] = 10;
-                }
-                if (count($settings) == 1){
-                    $settings[] = $settings[0];
-                }
-                
-                $json = array('seed' => $seed, 'dims' => $settings);
-            ?>
-            
+            <?php $json = nm_get_settings(); ?>
 			var nMaze = new NMaze(<?php echo json_encode($json); ?>);
-            var table_display = new TableDisplay(nMaze);
+            var table_display = new TableDisplay(nMaze, "maze_container", "controls_container");
 			
-			var init = function (){
-				table_display.init();
-                
-			}
-			
+			var init = function (){ table_display.init(); };
 			document.onreadystatechange = function(){
 				if (document.readyState == "complete"){
 					init();
@@ -53,18 +17,26 @@
 			};
 			
 		</script>
+        <title>NMaze - n-dimensional mazes</title>
 	<head>
 	<body>
-    
-        <div id="maze_container">
+        <div id="header_container">
+            <?php include("header.php");?>
+        </div>
+        <div id="maze_block">
+            <div id="maze_container">
+            </div>
+            <div id="maze_info">
+                <label for="maze_seed">Random Seed:</label>
+                <input id="maze_seed" class="maze_seed" name="maze_seed" value="<?php echo $json['seed']; ?>" /><br />
+                <?php foreach ($json['dims'] as $i => $v){ ?>
+                <label for="dim_<?= $i ?>">Dimension <?= ($i + 1) ?>:</label>
+                <input id="dim_<?= $i ?>" class="maze_dim" name="maze_dims[<?= $i ?>]" value="<?= $v ?>" /><br />
+                <?php } ?>
+                <input type="button" value="Make maze"/>
+            </div>
         </div>
         <div id="controls_container">
-        <!--
-            <input type="button" name="up" value="up" onclick="move(this.value)" />
-            <input type="button" name="down" value="down" onclick="move(this.value)" />
-            <input type="button" name="left" value="left" onclick="move(this.value)" />
-            <input type="button" name="right" value="right" onclick="move(this.value)" />
-            -->
         </div>
 	</body>
 </html>
