@@ -28,12 +28,44 @@
             </div>
             <div id="maze_info">
                 <label for="maze_seed">Random Seed:</label>
-                <input id="maze_seed" class="maze_seed" name="maze_seed" value="<?php echo $json['seed']; ?>" /><br />
+                <input id="maze_seed" class="maze_seed" name="maze_seed" value="<?php echo $json['seed']; ?>" />
+                <input type="button" value="New" onclick="newSeed()" /></br>
+                <script type="text/javascript">
+                    function newSeed(){
+                        var r = (Math.random() * 16000).toString().split(".")[0];
+                        document.getElementById('maze_seed').value=r; }
+                    function newMaze(){
+                        var param = "?";
+                        var dims = document.getElementsByTagName('input');
+                        for (var d in dims){
+                            if (typeof(dims[d].getAttribute) == "function"){
+                                var c = dims[d].getAttribute('class');
+                                if (typeof(c) != "undefined" && c != null && c.indexOf('maze_dim') > -1){
+                                    param += "-" + dims[d].value;
+                                }
+                            }
+                        }
+                        param += "-" + document.getElementById('maze_seed').value;
+                        var path = document.location.protocol + "//" +
+                            document.location.hostname +
+                            document.location.pathname +
+                            param;
+                            
+                        
+                        if (confirm("New maze?")){
+                            document.location = path;
+                        } else {
+                            return false;
+                        }
+                        
+                    }
+                </script>
+                <br />
                 <?php foreach ($json['dims'] as $i => $v){ ?>
                 <label for="dim_<?= $i ?>">Dimension <?= ($i + 1) ?>:</label>
                 <input id="dim_<?= $i ?>" class="maze_dim" name="maze_dims[<?= $i ?>]" value="<?= $v ?>" /><br />
                 <?php } ?>
-                <input type="button" value="Make maze"/>
+                <input type="button" value="Make maze" style="width:100px;" onclick="newMaze()"/>
             </div>
         </div>
         <div id="controls_container">
