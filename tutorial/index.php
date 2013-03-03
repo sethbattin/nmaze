@@ -34,7 +34,7 @@
                 
                 endCell.onEnter = function (){
                     alert("ZOOMG!  Thank you for being alive, super-genius!");
-                    nMaze = new NMaze({seed:34, dims : [4,4,3,3]});
+                    nMaze = new NMaze({seed:37, dims : [4,4,3,3]});
                     table_display = new TableDisplay(nMaze, "maze_container", "controls_container");
                     table_display.init();
                     document.getElementById("messages").innerHTML =
@@ -51,7 +51,7 @@
                 
                 endCell.onEnter = function (){
                     alert("Great Job!  1000 gamer points to you!");
-                    nMaze = new NMaze({seed: 21, dims: [4, 12, 3]});
+                    nMaze = new NMaze({seed: 23, dims: [4, 12, 3]});
                     table_display = new TableDisplay(nMaze, "maze_container", "controls_container");
                     table_display.init();
                     document.getElementById("messages").innerHTML =
@@ -79,17 +79,17 @@
         </div>
         <div id="messages_2" style="display:none">
             <p>Job well done, astronaut.  You'll be able to manage a large team of technical experts in no time!  Let's attempt something more difficult: the 3D maze!</p>
-            <p>You will need to move in an additional direction to reach the exit.  You can click the new buttons, or you can use the keys shown above them.</p>
+            <p>You will need to move in an additional direction to reach the exit.  This new direction is like moving to a different floor of a building.  A new floor with a whole other maze on it!  You can click the new buttons, or you can use the keys shown above them.</p>
             <p>Passages available through this extra dimensions will be marked with one or both of the stair icons <img src="/nmaze/img/stairs.png" style="width:20px;" />.  Go, Go, Go!</p>
         </div>
         <div id="messages_3" style="display:none;">
             <p>Astronaut.  Your super-human performance requires only one more test.  <strong>4 Dimensions!</strong></p>
-            <p>This new dimension has new button and keyboard shortcuts.  The passages are marked with red and green, which is coincidentally the name of the directions in the dimension through which you will be moving.  Don't try to wrap your head around it.  Even your amazing intellect can't envision it.  Just get to the exit.</p>
+            <p>This new dimension is again like making a large movement all at once to a new maze.  It is a portal through realtiy.  The same building, the same floor, but a different maze.  The teleporters have new buttons and keyboard shortcuts, and their passages are marked with red and green, which is coincidentally the name of the directions in the dimension through which you will be moving.  Just get to the exit.</p>
             <p>If you get stuck...you have <a href="/nmaze/?5-5-3-20">your cyanide capsule.</a></p>
         </div>
         <div id="messages_4" style="display:none">
             <p>You are ready.  <a href="/nmaze/?4-4-4-4-50">Show the universe what you can do.</a></p>
-        </div>"
+        </div>
         <div id="controls_container">
         </div>
 	</body>

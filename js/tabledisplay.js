@@ -12,9 +12,9 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
     };
     this.getDirections = function(){
         return [
-            ["left", "right"],
-            ["up", "down"],
-            ['in', 'out'],
+            ["west", "east"],
+            ["north", "south"],
+            ['down', 'up'],
             ['green', 'red'],
             ['poop', 'jeff'],
             ['begin','end'],
@@ -125,11 +125,24 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
         
         return cell;
     };
+    this._eventifyCell = function (){
+        var args = Array.prototype.slice.call(arguments);
+        var _events = args.pop();
+        var cell = this.getCell.apply(this, args);
+        if (typeof(cell) != undefined){
+            for (var _e in _events){
+                cell[_e] = _events[_e];
+            }
+        }
+    }
     this._classifyCell = function (){
         var args = Array.prototype.slice.call(arguments);
         var _class = args.pop();
         //it sure would be nice to be using jQuery right now.
         var cell = this.getCell.apply(this, args);
+        if (typeof(cell) == 'undefined'){
+            return;
+        }
         var currentClass = cell.getAttribute('class');
         if ((typeof(currentClass) == "undefined") ||
             ((typeof(currentClass) == "object") && (currentClass == null))
@@ -144,14 +157,17 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
         var args = Array.prototype.slice.call(arguments);
         var _class = args.pop();
         var cell = this.getCell.apply(this, args);
+        if (typeof(cell) == 'undefined'){
+            return;
+        }
         var currentClass = cell.getAttribute('class');
         if ((typeof(currentClass) == "undefined") ||
             ((typeof(currentClass) == "object") && (currentClass == null))
         ){
             return;
         } else if (typeof(currentClass == "string")){
-            currentClass = currentClass.split(" ");
-            for (var i; i < currentClass.length; i++){
+            currentClass = currentClass.split(/\s+/);
+            for (var i = 0; i < currentClass.length; i++){
                 if (currentClass[i] == _class){
                     currentClass[i] = "";
                 }
@@ -195,7 +211,7 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
                         .setAttribute('class', 'cell man');
                     
                 }
-                        
+                
                 var newCell = tDisplay.nMaze.getCell.apply(tDisplay.nMaze, this.position);
                 if (('onEnter' in newCell) && (typeof(newCell.onEnter) == "function")){
                     newCell.onEnter();
@@ -209,18 +225,6 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
         
         var dirs = this.getDirections();
         var dims = this.getDimensions();
-        
-        var _applyClasses = function(values){
-            var cell = this.nMaze.getCell.apply(this.nMaze, values);
-            for (var j = 0; j < this.nMaze.dims.length; j++){
-                for (var k = 0; k < 2; k++){
-                    if (cell.paths[j][k]){
-                        var _class = "o_" + dirs[j][k];
-                        this._classifyCell.apply(this, values.concat(_class));
-                    }
-                }
-            }
-        };
         
         var _buildTable = function(_args, content, iteration){
         
@@ -255,7 +259,50 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
             }
             
             return result;
-        }
+        };
+        
+        var _configureTable = function(values){
+            var cell = this.nMaze.getCell.apply(this.nMaze, values);
+            var _adjacentCells = [];
+            for (var j = 0; j < this.nMaze.dims.length; j++){
+                for (var k = 0; k < 2; k++){
+                    if (cell.paths[j][k]){
+                        var _class = "o_" + dirs[j][k];
+                        this._classifyCell.apply(this, values.concat(_class));
+                        _adjacentCells.push(this.getDirVector(dirs[j][k]));
+                    }
+                }
+            }
+            var _adjCoordList = (function (){
+                var _list = [];
+                for (var a in _adjacentCells){
+                    var newCoords = values.slice(0);
+                    for (var x in newCoords){
+                        newCoords[x] += _adjacentCells[a][x];
+                    }
+                    _list.push(newCoords);
+                }
+                return _list;
+            }).apply(this);
+            
+            var self = this;
+            var _onEnter = function (){
+                for (var c in _adjCoordList){
+                    self._classifyCell.apply(
+                        self, _adjCoordList[c].concat('adjacent')
+                    );
+                }
+            }
+            
+            var _onExit = function (){
+                for (var c in _adjCoordList){
+                    self._declassifyCell.apply(
+                        self, _adjCoordList[c].concat('adjacent')
+                    );
+                }
+            }
+            this._eventifyCell.apply(this, values.concat({onmouseover: _onEnter, onmouseout: _onExit}));
+        };
         
         var _buildArgs = function(dims, arg, values, _onBuild, _onBuildArgs){
             if (arg < dims.length){
@@ -270,7 +317,9 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
         var structure = _buildTable.call(this, this.getDimensions(), "<div class='cell'></div>",0);
         document.getElementById(mazeContId).innerHTML = structure;
         
-        _buildArgs.call(this, dims, 0, [], _applyClasses, []);
+        _buildArgs.call(this, dims, 0, [], _configureTable, []);
+        
+        
         var letters = ["Left", "Right", "Up", "Down", "Q","A","W","S","E","D","R","F","T","G"];
         var controls = "";
         var dirs = this.getDirections();
@@ -315,6 +364,7 @@ var TableDisplay = function (nMaze, mazeContId, controlsContId){
             man.move(table_display.getDirections()[button[0]][button[1]]);
         }
     }
+    document.move = move;
     
     document.onkeydown = function(event){
         var chCode = (('charCode' in event) && (event.charCode != 0)) ? event.charCode : event.keyCode;
